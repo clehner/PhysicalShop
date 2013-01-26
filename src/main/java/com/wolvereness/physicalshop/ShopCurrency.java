@@ -15,7 +15,7 @@ import com.wolvereness.physicalshop.exception.InvalidMaterialException;
 import static com.wolvereness.physicalshop.config.ConfigOptions.SERVER_SHOP;
 
 /**
- *
+ * Non-material currency for shops, using Vault
  */
 public class ShopCurrency extends ShopMaterial {
 	private Economy econ;
