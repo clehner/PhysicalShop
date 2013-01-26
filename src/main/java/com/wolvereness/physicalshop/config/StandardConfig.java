@@ -34,6 +34,9 @@ public class StandardConfig {
 		if(!plugin.getConfig().isConfigurationSection(CURRENCIES)) {
 			plugin.getConfig().createSection(CURRENCIES).set("g", "Gold Ingot");
 		}
+		if(!plugin.getConfig().isConfigurationSection(PLUGIN_CURRENCIES)) {
+			plugin.getConfig().createSection(PLUGIN_CURRENCIES);
+		}
 		for (final Object matObj : plugin.getConfig().getList(SHOP_BLOCK_BLACKLIST, ImmutableList.of())) {
 			if (matObj == null) {
 				continue;

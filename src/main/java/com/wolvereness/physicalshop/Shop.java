@@ -111,8 +111,22 @@ public class Shop {
 		final int price = getBuyRate().getPrice();
 		final int amount = getBuyRate().getAmount();
 
+		if (getBuyCurrency() instanceof ShopCurrency) {
+			if (!((ShopCurrency)getBuyCurrency()).has(player.getName(), price)) {
+				plugin.getLocale().sendMessage(player, NOT_ENOUGH_PLAYER_MONEY, getBuyCurrency().toString(plugin.getMaterialConfig()));
+				return false;
+			}
+		}
+
 		try {
 			InventoryHelpers.exchange(inventory, material.getStack(amount), getBuyCurrency().getStack(price));
+			if (getBuyCurrency() instanceof ShopCurrency) {
+				if (((ShopCurrency)getBuyCurrency()).transfer(player.getName(), ownerName, price) == false) {
+					plugin.getLocale().sendMessage(player, NO_BUY);
+					InventoryHelpers.exchange(inventory, getBuyCurrency().getStack(price), material.getStack(amount));
+					return false;
+				}
+			}
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
@@ -258,12 +272,13 @@ public class Shop {
 	public void interact(final Player player, final PhysicalShop plugin) {
 		final ShopMaterial item = new ShopMaterial(player.getItemInHand());
 		try {
-			if (item.equals(getBuyCurrency())) {
-				if(buy(player, plugin)) {
+			if (item.equals(material)) {
+				if(sell(player, plugin)) {
 					triggerRedstone(plugin);
 				}
-			} else if (item.equals(material)) {
-				if(sell(player, plugin)) {
+			} else if (item.equals(getBuyCurrency()) ||
+					getBuyCurrency() instanceof ShopCurrency) {
+				if(buy(player, plugin)) {
 					triggerRedstone(plugin);
 				}
 			}
@@ -351,8 +366,22 @@ public class Shop {
 		final int price = getSellRate().getPrice();
 		final int amount = getSellRate().getAmount();
 
+		if (getSellCurrency() instanceof ShopCurrency) {
+			if (!((ShopCurrency)getSellCurrency()).has(ownerName, price)) {
+				plugin.getLocale().sendMessage(player, NOT_ENOUGH_SHOP_ITEMS, getSellCurrency().toString(plugin.getMaterialConfig()));
+				return false;
+			}
+		}
+
 		try {
 			InventoryHelpers.exchange(inventory, getSellCurrency().getStack(price), material.getStack(amount));
+			if (getSellCurrency() instanceof ShopCurrency) {
+				if (((ShopCurrency)getSellCurrency()).transfer(ownerName, player.getName(), price) == false) {
+					plugin.getLocale().sendMessage(player, NO_SELL);
+					InventoryHelpers.exchange(inventory, material.getStack(amount), getSellCurrency().getStack(price));
+					return false;
+				}
+			}
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:

@@ -63,6 +63,10 @@ public class ConfigOptions {
 	 */
 	public static String PATTERN = "pattern";
 	/**
+	 * Config option, "plugin-currencies"
+	 */
+	public static String PLUGIN_CURRENCIES = "plugin-currencies";
+	/**
 	 * Config option, "price-index"
 	 */
 	public static String PRICE_INDEX = "price-index";

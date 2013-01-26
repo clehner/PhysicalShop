@@ -1,6 +1,7 @@
 package com.wolvereness.physicalshop.config;
 
 import static com.wolvereness.physicalshop.config.ConfigOptions.CURRENCIES;
+import static com.wolvereness.physicalshop.config.ConfigOptions.PLUGIN_CURRENCIES;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.wolvereness.physicalshop.PhysicalShop;
 import com.wolvereness.physicalshop.ShopMaterial;
+import com.wolvereness.physicalshop.ShopCurrency;
 import com.wolvereness.physicalshop.exception.InvalidMaterialException;
 
 /**
@@ -44,6 +46,10 @@ public class MaterialConfig {
 		for(final String currency : currencySection.getKeys(false)) {
 			addCurrency(currency, currencySection.getString(currency));
 		}
+		final ConfigurationSection pluginCurrencySection = plugin.getConfig().getConfigurationSection(PLUGIN_CURRENCIES);
+		for(final String currency : pluginCurrencySection.getKeys(false)) {
+			addPluginCurrency(currency, pluginCurrencySection.getString(currency));
+		}
 		config = YamlConfiguration.loadConfiguration(file = new File(plugin.getDataFolder(), "Locales" + File.separatorChar +  "Items.yml"));
 		defaults();
 		try {
@@ -62,6 +68,18 @@ public class MaterialConfig {
 			currencies.put(currencyIdentifier, new ShopMaterial(junkCharacters.matcher(spaces.matcher(item).replaceAll("_")).replaceAll("").toUpperCase()));
 		} catch (final InvalidMaterialException e) {
 			plugin.getLogger().severe("Configuration error for shop currency:'"+currencyIdentifier+"' for item:"+item);
+		}
+	}
+	/**
+	 * Adds currency managed by plugin.
+	 * @param currencyIdentifier character to use as a reference
+	 * @param plugin name of the plugin to use
+	 */
+	private void addPluginCurrency(final String currencyIdentifier, final String econPluginName) {
+		if ("Vault".equalsIgnoreCase(econPluginName)) {
+			currencies.put(currencyIdentifier, new ShopCurrency(plugin));
+		} else {
+			plugin.getLogger().severe("Configuration error for shop currency:'"+currencyIdentifier+"' for plugin:"+econPluginName);
 		}
 	}
 	/**
