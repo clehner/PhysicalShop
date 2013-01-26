@@ -64,7 +64,7 @@ public class ShopCurrency extends ShopMaterial {
 
 	@Override
 	public int hashCode() {
-		return -1;
+		return econ == null ? -1 : -econ.hashCode();
 	}
 
 	@Override
