@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import net.milkbowl.vault.economy.Economy;
@@ -19,16 +20,32 @@ import com.wolvereness.physicalshop.exception.InvalidMaterialException;
 public class ShopCurrency extends ShopMaterial {
 	private Economy econ;
 
-	public ShopCurrency(final PhysicalShop plugin) {
+	public ShopCurrency(final PhysicalShop plugin, String econName) {
 		super(new ItemStack(0, 0));
+		econName = econName.toLowerCase();
+		ServicesManager servicesManager = Bukkit.getServer().getServicesManager();
 		RegisteredServiceProvider<Economy> economyProvider = null;
 		try {
-			economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-		} catch(NoClassDefFoundError e) {}
-		if (economyProvider == null) {
+			if ("vault".equals(econName)) {
+				economyProvider = servicesManager.getRegistration(Economy.class);
+				if (economyProvider != null) {
+					econ = economyProvider.getProvider();
+				}
+			} else {
+				for (RegisteredServiceProvider<Economy> provider :
+						servicesManager.getRegistrations(Economy.class)) {
+					Economy thisEcon = provider.getProvider();
+					if (thisEcon != null && thisEcon.getName().toLowerCase().contains(econName)) {
+						econ = thisEcon;
+						break;
+					}
+				}
+			}
+			if (econ == null) {
+				plugin.getLogger().severe("Economy service '" + econName + "' was not found.");
+			}
+		} catch(NoClassDefFoundError e) {
 			plugin.getLogger().severe("Vault not found.");
-		} else {
-			econ = economyProvider.getProvider();
 		}
 	}
 

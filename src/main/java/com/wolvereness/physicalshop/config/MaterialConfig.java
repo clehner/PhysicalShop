@@ -76,11 +76,7 @@ public class MaterialConfig {
 	 * @param plugin name of the plugin to use
 	 */
 	private void addPluginCurrency(final String currencyIdentifier, final String econPluginName) {
-		if ("Vault".equalsIgnoreCase(econPluginName)) {
-			currencies.put(currencyIdentifier, new ShopCurrency(plugin));
-		} else {
-			plugin.getLogger().severe("Configuration error for shop currency:'"+currencyIdentifier+"' for plugin:"+econPluginName);
-		}
+		currencies.put(currencyIdentifier, new ShopCurrency(plugin, econPluginName));
 	}
 	/**
 	 * Adds an alias to use to reference a shop material
