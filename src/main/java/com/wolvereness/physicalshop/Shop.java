@@ -111,22 +111,8 @@ public class Shop {
 		final int price = getBuyRate().getPrice();
 		final int amount = getBuyRate().getAmount();
 
-		if (getBuyCurrency() instanceof ShopCurrency) {
-			if (!((ShopCurrency)getBuyCurrency()).has(player.getName(), price)) {
-				plugin.getLocale().sendMessage(player, NOT_ENOUGH_PLAYER_MONEY, getBuyCurrency().toString(plugin.getMaterialConfig()));
-				return false;
-			}
-		}
-
 		try {
-			InventoryHelpers.exchange(inventory, material.getStack(amount), getBuyCurrency().getStack(price));
-			if (getBuyCurrency() instanceof ShopCurrency) {
-				if (((ShopCurrency)getBuyCurrency()).transfer(player.getName(), ownerName, price) == false) {
-					plugin.getLocale().sendMessage(player, NO_BUY);
-					InventoryHelpers.exchange(inventory, getBuyCurrency().getStack(price), material.getStack(amount));
-					return false;
-				}
-			}
+			InventoryHelpers.exchange(player.getName(), inventory, material, amount, getBuyCurrency(), price);
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
@@ -366,22 +352,8 @@ public class Shop {
 		final int price = getSellRate().getPrice();
 		final int amount = getSellRate().getAmount();
 
-		if (getSellCurrency() instanceof ShopCurrency) {
-			if (!((ShopCurrency)getSellCurrency()).has(ownerName, price)) {
-				plugin.getLocale().sendMessage(player, NOT_ENOUGH_SHOP_ITEMS, getSellCurrency().toString(plugin.getMaterialConfig()));
-				return false;
-			}
-		}
-
 		try {
-			InventoryHelpers.exchange(inventory, getSellCurrency().getStack(price), material.getStack(amount));
-			if (getSellCurrency() instanceof ShopCurrency) {
-				if (((ShopCurrency)getSellCurrency()).transfer(ownerName, player.getName(), price) == false) {
-					plugin.getLocale().sendMessage(player, NO_SELL);
-					InventoryHelpers.exchange(inventory, material.getStack(amount), getSellCurrency().getStack(price));
-					return false;
-				}
-			}
+			InventoryHelpers.exchange(player.getName(), inventory, getSellCurrency(), price, material, amount);
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:

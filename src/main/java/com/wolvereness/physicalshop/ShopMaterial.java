@@ -225,4 +225,24 @@ public class ShopMaterial {
 		}
 		return sb.append(material.toString());
 	}
+
+	/**
+	 * Give some of this to a player if this is a virtual material
+	 * @param playerName name of the player to give to
+	 * @param amount amount to give
+	 * @return true if successful
+	 */
+	public boolean giveVirtual(final String playerName, final int amount) {
+		return true;
+	}
+
+	/**
+	 * Take some of this from a player if this is a virtual material
+	 * @param playerName name of the player to take from
+	 * @param amount amount to take
+	 * @return true if successful
+	 */
+	public boolean takeVirtual(final String playerName, final int amount) {
+		return true;
+	}
 }

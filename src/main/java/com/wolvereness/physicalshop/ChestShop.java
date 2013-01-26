@@ -61,7 +61,7 @@ public class ChestShop extends Shop {
 		final ShopItemStack[] items = InventoryHelpers.getItems(chest.getInventory());
 
 		try {
-			InventoryHelpers.exchange(chest.getInventory(), getBuyCurrency().getStack(getBuyRate().getPrice()), getMaterial().getStack(getBuyRate().getAmount()));
+			InventoryHelpers.exchange(getOwnerName(), chest.getInventory(), getBuyCurrency(), getBuyRate().getPrice(), getMaterial(), getBuyRate().getAmount());
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
@@ -81,6 +81,7 @@ public class ChestShop extends Shop {
 
 		if (!super.buy(player, plugin)) {
 			InventoryHelpers.setItems(chest.getInventory(), items);
+			getBuyCurrency().takeVirtual(getOwnerName(), getBuyRate().getAmount());
 			return false;
 		}
 		return true;
@@ -122,9 +123,12 @@ public class ChestShop extends Shop {
 
 		try {
 			InventoryHelpers.exchange(
+				getOwnerName(),
 				chest.getInventory(),
-				getMaterial().getStack(getSellRate().getAmount()),
-				getSellCurrency().getStack(getSellRate().getPrice())
+				getMaterial(),
+				getSellRate().getAmount(),
+				getSellCurrency(),
+				getSellRate().getPrice()
 				);
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
@@ -141,6 +145,7 @@ public class ChestShop extends Shop {
 
 		if (!super.sell(player, plugin)) {
 			InventoryHelpers.setItems(chest.getInventory(), items);
+			getSellCurrency().giveVirtual(getOwnerName(), getSellRate().getPrice());
 			return false;
 		}
 		return true;

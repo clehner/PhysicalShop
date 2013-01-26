@@ -10,6 +10,7 @@ import com.wolvereness.physicalshop.exception.InvalidExchangeException;
  */
 public class InventoryHelpers {
 	private static boolean add(final Inventory inventory, final ItemStack stack) {
+		if (stack == null) return true;
 		int left = stack.getAmount();
 		final int maxStackSize = stack.getType().getMaxStackSize();
 
@@ -51,30 +52,42 @@ public class InventoryHelpers {
 	}
 
 	/**
-	 * This will add the addStack, and remove the removeStack from specified inventory. If it fails, it throws an error and resets inventories.
+	 * This will add and remove material from the specified inventory,
+	 * and from the specified player if it is a virtual material.
+	 * If it fails, it resets inventories, undoes charges, and throws an error.
+	 * @param String name of the player who owns this inventory
 	 * @param inventory inventory to use
-	 * @param addStack stack to add
-	 * @param removeStack stack to remove
+	 * @param addMaterial material to add
+	 * @param addAmount amount of material to add
+	 * @param removeMaterial material to remove
+	 * @param removeAmount amount of material to remove
 	 * @throws InvalidExchangeException if the inventory cannot support the stack or add, or not enough in inventory to remove the stack
 	 */
 	public static void exchange(
+	        final String playerName,
 	        final Inventory inventory,
-			final ItemStack addStack,
-			final ItemStack removeStack)
+			final ShopMaterial addMaterial,
+			final int addAmount,
+			final ShopMaterial removeMaterial,
+			final int removeAmount)
 			throws InvalidExchangeException {
 		final ShopItemStack[] oldItems = InventoryHelpers.getItems(inventory);
 
-		if (removeStack != null) {
-			if (!InventoryHelpers.remove(inventory, removeStack)) {
+		if (removeAmount != 0) {
+			final ItemStack removeStack = removeMaterial.getStack(removeAmount);
+			if (!InventoryHelpers.remove(inventory, removeStack) ||
+					!removeMaterial.takeVirtual(playerName, removeAmount)) {
 				InventoryHelpers.setItems(inventory, oldItems);
 				throw new InvalidExchangeException(
 						InvalidExchangeException.Type.REMOVE);
 			}
-
 		}
 
-		if (addStack != null) {
-			if (!InventoryHelpers.add(inventory, addStack)) {
+		if (addAmount != 0) {
+			final ItemStack addStack = addMaterial.getStack(addAmount);
+			if (!InventoryHelpers.add(inventory, addStack) ||
+					!addMaterial.giveVirtual(playerName, addAmount)) {
+				removeMaterial.takeVirtual(playerName, removeAmount);
 				InventoryHelpers.setItems(inventory, oldItems);
 				throw new InvalidExchangeException(
 						InvalidExchangeException.Type.ADD);
@@ -121,6 +134,7 @@ public class InventoryHelpers {
 	}
 
 	private static boolean remove(final Inventory inventory, final ItemStack stack) {
+		if (stack == null) return true;
 		int left = stack.getAmount();
 		final ItemStack[] contents = inventory.getContents();
 

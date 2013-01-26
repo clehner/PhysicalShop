@@ -12,18 +12,15 @@ import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.SUCCESS;
 
 import com.wolvereness.physicalshop.config.MaterialConfig;
 import com.wolvereness.physicalshop.exception.InvalidMaterialException;
-import static com.wolvereness.physicalshop.config.ConfigOptions.SERVER_SHOP;
 
 /**
  * Non-material currency for shops, using Vault
  */
 public class ShopCurrency extends ShopMaterial {
 	private Economy econ;
-	final String serverShop;
 
 	public ShopCurrency(final PhysicalShop plugin) {
 		super(new ItemStack(0, 0));
-		serverShop = plugin.getConfig().getString(SERVER_SHOP);
 		RegisteredServiceProvider<Economy> economyProvider = null;
 		try {
 			economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
@@ -63,34 +60,17 @@ public class ShopCurrency extends ShopMaterial {
 		return toString();
 	}
 
-	/**
-	 * @param fromPlayer the player to debit
-	 * @param toPlayer the player to credit
-	 * @param amount the amount of money to transfer
-	 * @return success or failure
-	 */
-	public boolean transfer(String fromPlayer, String toPlayer, final int amount) {
-		if (fromPlayer.equalsIgnoreCase(toPlayer)) return true;
-
-		EconomyResponse resp;
-		if (!fromPlayer.equalsIgnoreCase(serverShop)) {
-			resp = econ.withdrawPlayer(fromPlayer, (double) amount);
-			if (resp.type != SUCCESS) return false;
-		}
-		if (!toPlayer.equalsIgnoreCase(serverShop)) {
-			resp = econ.depositPlayer(toPlayer, (double) amount);
-			if (resp.type != SUCCESS) return false;
-		}
-		return true;
+	@Override
+	public boolean giveVirtual(final String playerName, final int amount) {
+		if (amount == 0) return true;
+		EconomyResponse resp = econ.depositPlayer(playerName, (double) amount);
+		return (resp.type == SUCCESS);
 	}
 
-	/**
-	 * @param playerName name of the player to check
-	 * @param amount the minimum balance to check for
-	 * @return whether the player has the given amount of money
-	 */
-	public boolean has(String playerName, final int amount) {
-		return playerName.equalsIgnoreCase(serverShop) ||
-			econ.has(playerName, (double) amount);
+	@Override
+	public boolean takeVirtual(final String playerName, final int amount) {
+		if (amount == 0) return true;
+		EconomyResponse resp = econ.withdrawPlayer(playerName, (double) amount);
+		return (resp.type == SUCCESS);
 	}
 }
