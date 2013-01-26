@@ -55,7 +55,7 @@ public class ShopCurrency extends ShopMaterial {
 
 	@Override
 	public String toString() {
-		return econ.currencyNameSingular();
+		return econ.currencyNamePlural();
 	}
 
 	@Override
