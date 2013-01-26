@@ -87,7 +87,7 @@ public class InventoryHelpers {
 			final ItemStack addStack = addMaterial.getStack(addAmount);
 			if (!InventoryHelpers.add(inventory, addStack) ||
 					!addMaterial.giveVirtual(playerName, addAmount)) {
-				removeMaterial.takeVirtual(playerName, removeAmount);
+				removeMaterial.giveVirtual(playerName, removeAmount);
 				InventoryHelpers.setItems(inventory, oldItems);
 				throw new InvalidExchangeException(
 						InvalidExchangeException.Type.ADD);
