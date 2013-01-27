@@ -9,7 +9,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
-import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.SUCCESS;
 
 import com.wolvereness.physicalshop.config.MaterialConfig;
 import com.wolvereness.physicalshop.exception.InvalidMaterialException;
@@ -81,13 +80,13 @@ public class ShopCurrency extends ShopMaterial {
 	public boolean giveVirtual(final String playerName, final int amount) {
 		if (amount == 0) return true;
 		EconomyResponse resp = econ.depositPlayer(playerName, (double) amount);
-		return (resp.type == SUCCESS);
+		return resp.transactionSuccess();
 	}
 
 	@Override
 	public boolean takeVirtual(final String playerName, final int amount) {
 		if (amount == 0) return true;
 		EconomyResponse resp = econ.withdrawPlayer(playerName, (double) amount);
-		return (resp.type == SUCCESS);
+		return resp.transactionSuccess();
 	}
 }
